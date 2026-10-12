@@ -1,3 +1,4 @@
+import { localizedRule } from "../../i18n/ruleLabels";
 import { useId, useRef, useState } from "react";
 import { useEscapeToClose } from "../system/useEscapeToClose";
 import { useTranslation } from "react-i18next";
@@ -13,11 +14,7 @@ import {
   getStakeSpec,
   type Stake,
 } from "../../items/stakes";
-import {
-  DEFAULT_DECK,
-  createDeckCatalog,
-  type Deck,
-} from "../../items/decks";
+import { DEFAULT_DECK, createDeckCatalog, type Deck } from "../../items/decks";
 import type { VoucherId } from "../../items/vouchers";
 import {
   computeStartingDiscards,
@@ -75,7 +72,7 @@ export default function NewRunScreen({
   initialDeck = DEFAULT_DECK,
   onConfirm,
 }: NewRunScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [stake, setStake] = useState<Stake>(initialStake);
   const [deck, setDeck] = useState<Deck>(initialDeck);
   const deckTooltipIdBase = useId();
@@ -168,7 +165,8 @@ export default function NewRunScreen({
             role="radiogroup"
             aria-label={t("a11y.deckVariant")}
           >
-            {DECKS.map((spec) => {
+            {DECKS.map((canonicalSpec) => {
+              const spec = localizedRule(i18n.language, canonicalSpec);
               const isSelected = spec.id === deck;
               const tooltipId = `${deckTooltipIdBase}-${spec.id}`;
               const open = deckTooltip?.id === spec.id;
@@ -183,7 +181,9 @@ export default function NewRunScreen({
                     data-deck-tile=""
                     data-selected={isSelected || undefined}
                     aria-describedby={open ? tooltipId : undefined}
-                    onMouseEnter={(e) => openDeckTooltip(spec.id, e.currentTarget)}
+                    onMouseEnter={(e) =>
+                      openDeckTooltip(spec.id, e.currentTarget)
+                    }
                     onMouseLeave={() => closeDeckTooltip(spec.id)}
                     onFocus={(e) => openDeckTooltip(spec.id, e.currentTarget)}
                     onBlur={() => closeDeckTooltip(spec.id)}
@@ -225,7 +225,8 @@ export default function NewRunScreen({
             role="radiogroup"
             aria-label={t("a11y.stakeDifficulty")}
           >
-            {STAKES.map((spec) => {
+            {STAKES.map((canonicalSpec) => {
+              const spec = localizedRule(i18n.language, canonicalSpec);
               const isSelected = spec.id === stake;
               return (
                 <div key={spec.id} className="flex">
@@ -259,28 +260,31 @@ export default function NewRunScreen({
             aria-live="polite"
             aria-label={t("a11y.activeStakeEffects")}
           >
-            {getActiveStakes(stake).slice().reverse().map((id) => {
-              const spec = getStakeSpec(id);
-              const isSelected = id === stake;
-              return (
-                <li
-                  key={id}
-                  className={cn(
-                    "grid grid-cols-[7rem_1fr] items-baseline gap-2 rounded-md bg-white/2 px-2 py-0.5",
-                    isSelected && "bg-money/10 outline outline-money/40",
-                  )}
-                  data-testid={`new-run-stake-effect-${id}`}
-                  data-selected={isSelected || undefined}
-                >
-                  <span
-                    className={cn("text-right font-semibold", STAKE_TEXT[id])}
+            {getActiveStakes(stake)
+              .slice()
+              .reverse()
+              .map((id) => {
+                const spec = localizedRule(i18n.language, getStakeSpec(id));
+                const isSelected = id === stake;
+                return (
+                  <li
+                    key={id}
+                    className={cn(
+                      "grid grid-cols-[7rem_1fr] items-baseline gap-2 rounded-md bg-white/2 px-2 py-0.5",
+                      isSelected && "bg-money/10 outline outline-money/40",
+                    )}
+                    data-testid={`new-run-stake-effect-${id}`}
+                    data-selected={isSelected || undefined}
                   >
-                    {spec.name}
-                  </span>
-                  <span>{spec.description}</span>
-                </li>
-              );
-            })}
+                    <span
+                      className={cn("text-right font-semibold", STAKE_TEXT[id])}
+                    >
+                      {spec.name}
+                    </span>
+                    <span>{spec.description}</span>
+                  </li>
+                );
+              })}
           </ul>
         </section>
         <div className="flex justify-center">

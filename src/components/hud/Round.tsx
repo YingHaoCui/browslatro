@@ -1,3 +1,4 @@
+import { localizedRule } from "../../i18n/ruleLabels";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import type { Blind } from "../../cards/types";
@@ -22,9 +23,12 @@ function Round({
   boss = null,
   firstPlayedHandLabel = null,
 }: RoundProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const award = "💲".repeat(2 + blind);
-  const blindLabel = blind === 3 && boss ? boss.name : tBlindName(t, blind);
+  const blindLabel =
+    blind === 3 && boss
+      ? localizedRule(i18n.language, boss).name
+      : tBlindName(t, blind);
   const showLockedHand =
     blind === 3 &&
     boss?.effect.kind === "single-hand-type" &&
@@ -38,7 +42,9 @@ function Round({
       >
         <h2 className="text-2xl font-bold">{blindLabel}</h2>
         {blind === 3 && boss && (
-          <p className="text-sm text-mult italic">{boss.description}</p>
+          <p className="text-sm text-mult italic">
+            {localizedRule(i18n.language, boss).description}
+          </p>
         )}
         {showLockedHand && (
           <p
@@ -63,7 +69,10 @@ function Round({
         </h3>
         <h4 className="text-sm text-muted">{t("sidebar.toEarn", { award })}</h4>
       </div>
-      <div className="flex flex-col items-center gap-1" data-testid="round-score">
+      <div
+        className="flex flex-col items-center gap-1"
+        data-testid="round-score"
+      >
         <span className="text-xs tracking-widest text-muted uppercase">
           {t("sidebar.roundScore")}
         </span>

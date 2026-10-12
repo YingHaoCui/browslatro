@@ -1,3 +1,4 @@
+import { localizedRule } from "../../i18n/ruleLabels";
 import { useCallback, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
@@ -36,10 +37,10 @@ export default function RunInfoDialog({
   ownedVouchers,
   onClose,
 }: RunInfoDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const selectedDeck = useGame((s) => s.selectedDeck);
   const selectedStake = useGame((s) => s.selectedStake);
-  const deckSpec = getDeckSpec(selectedDeck);
+  const deckSpec = localizedRule(i18n.language, getDeckSpec(selectedDeck));
   const [activeTab, setActiveTab] = useState<TabId>("hands");
   const titleId = useId();
   const tabIdPrefix = useId();
@@ -120,7 +121,7 @@ export default function RunInfoDialog({
       onClick={handleClose}
     >
       <div
-        className="flex max-h-[80vh] min-w-[22rem] max-w-[36rem] flex-col gap-3 overflow-y-auto rounded-xl border-2 border-border bg-surface p-5 shadow-xl"
+        className="flex max-h-[80vh] max-w-[36rem] min-w-[22rem] flex-col gap-3 overflow-y-auto rounded-xl border-2 border-border bg-surface p-5 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id={titleId} className="text-center text-lg font-bold text-ink">
@@ -252,7 +253,10 @@ export default function RunInfoDialog({
               </h3>
               <ul className="flex flex-col gap-1">
                 {STAKE_ORDER.map((stakeId) => {
-                  const spec = getStakeSpec(stakeId);
+                  const spec = localizedRule(
+                    i18n.language,
+                    getStakeSpec(stakeId),
+                  );
                   const current = stakeId === selectedStake;
                   return (
                     <li

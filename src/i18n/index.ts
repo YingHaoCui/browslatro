@@ -41,8 +41,8 @@ const lazyLocaleLoaders: Record<
     return haw;
   },
   zh: async () => {
-    const { zh, zhJokerPlaceholders } = await import("./locales/zh");
-    registerLocaleContent("zh", zh);
+    const { zh, zhJokerPlaceholders, zhRules } = await import("./locales/zh");
+    registerLocaleContent("zh", { ...zh, ...zhRules });
     registerJokerPlaceholders("zh", zhJokerPlaceholders);
     return zh;
   },

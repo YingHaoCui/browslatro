@@ -1,3 +1,4 @@
+import { localizedRule, localizedSkipOffer } from "../../i18n/ruleLabels";
 import { useId, useState } from "react";
 import { useEscapeToClose } from "../system/useEscapeToClose";
 import { useTranslation } from "react-i18next";
@@ -5,7 +6,6 @@ import type { Blind } from "../../cards/types";
 import type { BossBlind } from "../../items/bosses";
 import { requiredChipsForBlind } from "../../scoring/anteScaling";
 import {
-  describeSkipOffer,
   getTagSpec,
   type AnteSkipOffer,
   type AnteSkipOffers,
@@ -73,13 +73,19 @@ export default function BlindSelectScreen({
   bossRerollCost,
   canAffordBossReroll,
 }: BlindSelectScreenProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const blinds: ReadonlyArray<Blind> = [1, 2, 3];
   const currentName =
-    currentBlind === 3 ? boss.name : t(BLIND_NAME_KEYS[currentBlind]);
+    currentBlind === 3
+      ? localizedRule(i18n.language, boss).name
+      : t(BLIND_NAME_KEYS[currentBlind]);
   const canSkip = currentBlind !== 3 && Boolean(onSkip);
   const skipOfferForBlind = (blind: Blind): AnteSkipOffer | undefined =>
-    blind === 1 ? skipRewards?.small : blind === 2 ? skipRewards?.big : undefined;
+    blind === 1
+      ? skipRewards?.small
+      : blind === 2
+        ? skipRewards?.big
+        : undefined;
   const canOverrideBoss =
     bossOptions !== undefined && bossOptions.length > 0 && Boolean(onSetBoss);
   const showRerollBoss =
@@ -128,7 +134,7 @@ export default function BlindSelectScreen({
             data-testid="blind-select-tags"
           >
             {tags.map((id, idx) => {
-              const spec = getTagSpec(id);
+              const spec = localizedRule(i18n.language, getTagSpec(id));
               const key = `held-${idx}`;
               const tooltipId = `${tooltipIdBase}-${key}`;
               const open = tooltip?.key === key;
@@ -170,9 +176,14 @@ export default function BlindSelectScreen({
               : isCompleted
                 ? "completed"
                 : "upcoming";
-            const name = b === 3 ? boss.name : t(BLIND_NAME_KEYS[b]);
+            const name =
+              b === 3
+                ? localizedRule(i18n.language, boss).name
+                : t(BLIND_NAME_KEYS[b]);
             const rowSkipOffer = skipOfferForBlind(b);
-            const rowSkipSpec = rowSkipOffer ? describeSkipOffer(rowSkipOffer) : null;
+            const rowSkipSpec = rowSkipOffer
+              ? localizedSkipOffer(t, i18n.language, rowSkipOffer)
+              : null;
             const skipKey = `skip-${b}`;
             const skipTooltipId = `${tooltipIdBase}-${skipKey}`;
             const skipTooltipOpen = tooltip?.key === skipKey;
@@ -196,7 +207,7 @@ export default function BlindSelectScreen({
                   >
                     {bossOptions.map((option) => (
                       <option key={option.id} value={option.id}>
-                        {option.name}
+                        {localizedRule(i18n.language, option).name}
                       </option>
                     ))}
                   </select>
@@ -208,7 +219,7 @@ export default function BlindSelectScreen({
                     className="text-sm text-muted italic"
                     data-testid="blind-select-boss-description"
                   >
-                    {boss.description}
+                    {localizedRule(i18n.language, boss).description}
                   </span>
                 )}
                 {b === 3 && showRerollBoss && (
@@ -220,7 +231,9 @@ export default function BlindSelectScreen({
                     disabled={canAffordBossReroll === false}
                     aria-label={
                       canAffordBossReroll === false
-                        ? t("a11y.rerollBossNotEnough", { cost: bossRerollCost ?? 10 })
+                        ? t("a11y.rerollBossNotEnough", {
+                            cost: bossRerollCost ?? 10,
+                          })
                         : t("blinds.rerollBoss", { cost: bossRerollCost ?? 10 })
                     }
                   >

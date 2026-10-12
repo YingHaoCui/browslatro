@@ -2,7 +2,12 @@ import { en } from "./locales/en";
 
 export type LocaleContent = {
   readonly [Section in keyof typeof en]: Readonly<Record<string, string>>;
-};
+} & Partial<
+  Record<
+    "ruleNames" | "ruleDescriptions" | "traceText",
+    Readonly<Record<string, string>>
+  >
+>;
 
 export type ContentSection = keyof LocaleContent;
 
@@ -15,7 +20,10 @@ const EN_CONTENT: LocaleContent = en;
 const loadedContent = new Map<string, LocaleContent>();
 const loadedJokerPlaceholders = new Map<string, JokerPlaceholderValues>();
 
-export function registerLocaleContent(locale: string, content: LocaleContent): void {
+export function registerLocaleContent(
+  locale: string,
+  content: LocaleContent,
+): void {
   loadedContent.set(locale, content);
 }
 
@@ -46,5 +54,7 @@ export function localizedContentString(
   id: string,
   fallback: string,
 ): string {
-  return sectionFor(locale, section)?.[id] ?? EN_CONTENT[section][id] ?? fallback;
+  return (
+    sectionFor(locale, section)?.[id] ?? EN_CONTENT[section]?.[id] ?? fallback
+  );
 }
