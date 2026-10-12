@@ -1,0 +1,3 @@
+interface:
+  display_name: "Play Browslatro"
+  short_description: "Play the browser game through MCP tools"

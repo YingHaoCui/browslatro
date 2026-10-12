@@ -22,6 +22,7 @@ export function useShopController(): ShopProps | undefined {
   const consumables = useGame((s) => s.consumables);
   const setConsumables = useGame((s) => s.setConsumables);
   const shopOffers = useGame((s) => s.shopOffers);
+  const rerollCount = useGame((s) => s.shopRerollCount);
   const currentAnteVouchers = useGame((s) => s.currentAnteVouchers);
   const soldVoucherIds = useGame((s) => s.soldVoucherIds);
   const ownedVoucherIds = useGame((s) => s.ownedVoucherIds);
@@ -107,6 +108,7 @@ export function useShopController(): ShopProps | undefined {
   return useMemo<ShopProps | undefined>(() => {
     if (!shopOffers) return undefined;
     return {
+      rerollCount,
       money,
       equippedJokerCount,
       jokerCapacity,
@@ -127,6 +129,7 @@ export function useShopController(): ShopProps | undefined {
       onSetVoucher,
     };
   }, [
+    rerollCount,
     shopOffers,
     money,
     equippedJokerCount,

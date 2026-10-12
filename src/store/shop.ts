@@ -11,14 +11,29 @@ function resolve<T>(update: Updater<T>, prev: T): T {
 }
 
 export interface ShopState {
+  shopRerollCount: number;
+  setShopRerollCount: (count: number) => void;
   shopOffers: ReadonlyArray<ShopItem> | null;
   setShopOffers: (update: Updater<ReadonlyArray<ShopItem> | null>) => void;
   resetShop: () => void;
 }
 
-export const createShopSlice: StateCreator<GameState, [], [], ShopState> = (set) => ({
+export const createShopSlice: StateCreator<GameState, [], [], ShopState> = (
+  set,
+) => ({
+  shopRerollCount: 0,
+  setShopRerollCount: (shopRerollCount) => set({ shopRerollCount }),
   shopOffers: null,
   setShopOffers: (update) =>
-    set((state) => ({ shopOffers: resolve(update, state.shopOffers) })),
-  resetShop: () => set({ shopOffers: null }),
+    set((state) => {
+      const shopOffers = resolve(update, state.shopOffers);
+      return {
+        shopOffers,
+        shopRerollCount:
+          shopOffers === null || state.shopOffers === null
+            ? 0
+            : state.shopRerollCount,
+      };
+    }),
+  resetShop: () => set({ shopOffers: null, shopRerollCount: 0 }),
 });

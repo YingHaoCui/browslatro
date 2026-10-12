@@ -1,0 +1,48 @@
+FROM node:24-bookworm-slim AS build
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+ENV http_proxy=${HTTP_PROXY} https_proxy=${HTTPS_PROXY} no_proxy=${NO_PROXY}
+
+ARG GIT_REPO_URL
+ARG GIT_REF=main
+ARG GIT_TOKEN
+ARG CACHEBUST=1
+ARG BUILD_STRICT_SSL=true
+ARG SITE_URL=http://browslatro.internal
+ENV SITE_URL=${SITE_URL}
+
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN test -n "${GIT_REPO_URL}" && \
+    echo "cachebust=${CACHEBUST}" && \
+    git init /app && \
+    git -C /app remote add origin "${GIT_REPO_URL}" && \
+    if [ -n "${GIT_TOKEN}" ]; then \
+      git_auth="Authorization: Basic $(printf 'x-access-token:%s' "${GIT_TOKEN}" | base64 | tr -d '\n')"; \
+    else git_auth=""; fi && \
+    git -C /app -c http.sslVerify="${BUILD_STRICT_SSL}" -c http.extraHeader="${git_auth}" fetch --depth 1 origin "${GIT_REF}" && \
+    git -C /app checkout --detach FETCH_HEAD && \
+    rm -rf /app/.git
+
+WORKDIR /app
+RUN if [ -n "${HTTP_PROXY}" ]; then export YARN_HTTP_PROXY="${HTTP_PROXY}"; fi && \
+    if [ -n "${HTTPS_PROXY:-${HTTP_PROXY}}" ]; then export YARN_HTTPS_PROXY="${HTTPS_PROXY:-${HTTP_PROXY}}"; fi && \
+    if [ "${BUILD_STRICT_SSL}" = "false" ]; then export YARN_ENABLE_STRICT_SSL=false; fi && \
+    node .yarn/releases/yarn-4.15.0.cjs install --immutable && \
+    node .yarn/releases/yarn-4.15.0.cjs build && \
+    node .yarn/releases/yarn-4.15.0.cjs workspaces focus --production
+
+FROM node:24-bookworm-slim AS runtime
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=8080
+WORKDIR /app
+COPY --from=build --chown=node:node /app/package.json ./package.json
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/build ./build
+COPY --from=build --chown=node:node /app/scripts/serve.ts ./scripts/serve.ts
+COPY --from=build --chown=node:node /app/scripts/mcp ./scripts/mcp
+COPY --from=build --chown=node:node /app/src/mcp/protocol.ts ./src/mcp/protocol.ts
+USER node
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "scripts/serve.ts"]

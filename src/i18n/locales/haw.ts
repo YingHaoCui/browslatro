@@ -7,6 +7,15 @@ type LocaleMessages = {
 };
 
 export const haw: LocaleMessages = {
+  mcp: {
+    title: "MCP game control",
+    enable: "Enable MCP control",
+    disconnect: "Disconnect MCP",
+    connected: "Connected · harness can control this game",
+    connecting: "Connecting to local MCP bridge…",
+    error: "Game service unavailable · reconnecting…",
+    session: "Session {{id}}",
+  },
   app: {
     titleMenu: "Browslatro — Papa koho nui",
     titleRun: "Browslatro — E Pāʻani ",

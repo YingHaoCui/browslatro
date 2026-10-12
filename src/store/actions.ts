@@ -380,6 +380,7 @@ export const createActionsSlice: StateCreator<GameState, [], [], ActionsState> =
     const s = get();
     if (!s.shopOffers) return;
     if (s.money < cost) return;
+    s.setShopRerollCount(s.shopRerollCount + 1);
     captureRunEvent(s, {
       kind: "reroll",
       cost,

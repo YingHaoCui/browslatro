@@ -1,10 +1,14 @@
 # Browslatro
 
+## MCP harness control
+
+This fork adds standard MCP Streamable HTTP and stdio access so your own harness can observe and control the browser game. The game does not call your model or run an agent loop. Click **Enable MCP control** in a browser, then connect your harness to the production server's `/mcp` endpoint or the local stdio adapter. See [MCP setup and tool reference](docs/mcp-harness.md) and [cluster deployment](docs/cluster-deployment.md).
+
 A slimmed-down React + TypeScript implementation of the popular poker game, Balatro. Built with [Vite](https://vitejs.dev/), [Vitest](https://vitest.dev/), and [Playwright](https://playwright.dev/).
 
 ## Package manager
 
-This project uses [Yarn 4 (Berry)](https://yarnpkg.com/) (pinned via the `packageManager` field in `package.json`) with the Plug'n'Play (PnP) linker.
+This project uses [Yarn 4 (Berry)](https://yarnpkg.com/) (pinned via the `packageManager` field in `package.json`) with the node-modules linker. Node.js 24+ is required for the TypeScript MCP server. The linker avoids cross-drive hardlink issues on Windows.
 
 Activate the pinned version through Corepack, then install:
 
@@ -17,7 +21,7 @@ Corepack ships with Node.js and reads `packageManager` from `package.json` to pi
 
 ### Worktrees
 
-PnP keeps dependencies in a shared `.yarn/` cache and resolves modules through `.pnp.cjs`, so worktrees do not need their own `node_modules/`:
+Each checkout installs its own `node_modules/` using Yarn's cache:
 
 ```sh
 git worktree add ../some-branch some-branch

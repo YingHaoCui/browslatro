@@ -35,6 +35,7 @@ import RenderProfiler from "../../dev/RenderProfiler";
 const ShopSuggestion = lazy(() => import("./ShopSuggestion"));
 
 export interface ShopProps {
+  rerollCount?: number;
   money: number;
   equippedJokerCount: number;
   jokerCapacity: number;
@@ -313,6 +314,7 @@ const EDITION_RING: Record<
 const SECTION_HEADING = "text-xs font-bold tracking-wider uppercase";
 
 export default function Shop({
+  rerollCount: controlledRerollCount,
   money,
   equippedJokerCount,
   jokerCapacity,
@@ -342,7 +344,8 @@ export default function Shop({
     voucherOptions !== undefined &&
     voucherOptions.length > 0 &&
     Boolean(onSetVoucher);
-  const [rerollCount, setRerollCount] = useState(0);
+  const [localRerollCount, setLocalRerollCount] = useState(0);
+  const rerollCount = controlledRerollCount ?? localRerollCount;
   const [suggestSlot, setSuggestSlot] = useState<HTMLDivElement | null>(null);
   const baseRerollCost = rerollCostFor(
     rerollCount,
@@ -360,7 +363,7 @@ export default function Shop({
   function handleReroll() {
     if (disabled || !canAffordReroll) return;
     onReroll(currentRerollCost);
-    setRerollCount((prev) => prev + 1);
+    if (controlledRerollCount === undefined) setLocalRerollCount((prev) => prev + 1);
   }
 
   function renderOffer(offer: ShopItem, idx: number) {

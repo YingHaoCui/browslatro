@@ -6,6 +6,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 import { applySiteUrl } from "./src/seo/siteUrl";
+import { gameBridgePlugin } from "./scripts/mcp/bridgePlugin";
 
 const analyzePlugin: PluginOption | false =
   process.env.ANALYZE === "true" &&
@@ -73,6 +74,7 @@ export default defineConfig({
     "import.meta.env.VITE_ON_VERCEL": JSON.stringify(process.env.VERCEL ?? "0"),
   },
   plugins: [
+    gameBridgePlugin(),
     tailwindcss(),
     react(),
     siteUrlPlugin,

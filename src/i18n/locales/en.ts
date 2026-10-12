@@ -1,4 +1,13 @@
 export const en = {
+  mcp: {
+    title: "MCP game control",
+    enable: "Enable MCP control",
+    disconnect: "Disconnect MCP",
+    connected: "Connected · harness can control this game",
+    connecting: "Connecting to local MCP bridge…",
+    error: "Game service unavailable · reconnecting…",
+    session: "Session {{id}}",
+  },
   app: {
     titleMenu: "Browslatro — Main menu",
     titleRun: "Browslatro — Run in progress",

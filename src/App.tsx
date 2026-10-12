@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useGame } from "./store/game";
 import { useChanceOverrides } from "./hooks/useChanceOverrides";
 import Game from "./components/game/Game";
+import McpControls from "./components/game/McpControls";
 import GameSessionProvider from "./components/game/GameSessionProvider";
 import AutopilotSessionProvider from "./components/game/AutopilotSessionProvider";
 import AppOverlays from "./components/game/AppOverlays";
@@ -67,6 +68,7 @@ function AppContent() {
       <Sidebar onNewGame={startNewGame} />
       <Game />
       <AppOverlays />
+      <McpControls />
       <LiveAnnouncer />
       <AdminModeController />
       <BossEffectToast />

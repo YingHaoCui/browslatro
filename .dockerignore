@@ -1,7 +1,10 @@
 .git
 node_modules
-.yarn/cache
-.yarn/install-state.gz
+.yarn/*
+!.yarn/releases
+build
+.env*
+!.env.example
 dist
 coverage
 playwright-report
