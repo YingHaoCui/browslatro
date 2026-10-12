@@ -3,7 +3,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const SRC_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const STATIC_HAW_IMPORT = /^import\s(?!type\b)[^;]*from\s+["'][^"']*locales\/haw["']/m;
+const STATIC_LOCALE_IMPORT =
+  /^import\s(?!type\b)[^;]*from\s+["'][^"']*locales\/(?!en["'])[a-z-]+["']/m;
 
 function sourceFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -18,7 +19,7 @@ function sourceFiles(dir: string): string[] {
 describe("lazy locale import guard", () => {
   test("no production module statically imports a non-English locale", () => {
     const offenders = sourceFiles(SRC_ROOT).filter((path) =>
-      STATIC_HAW_IMPORT.test(readFileSync(path, "utf8")),
+      STATIC_LOCALE_IMPORT.test(readFileSync(path, "utf8")),
     );
     expect(offenders).toEqual([]);
   });

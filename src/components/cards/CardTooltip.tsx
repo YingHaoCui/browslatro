@@ -2,18 +2,28 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { tSuitName } from "../../i18n/strings";
 import { useTooltipPosition } from "../system/useTooltipPosition";
-import type { CardInfo } from "./cardInfo";
+import {
+  cardEditionDescription,
+  cardEditionName,
+  enhancementDescription,
+  enhancementName,
+  sealDescription,
+  sealName,
+  type CardInfo,
+} from "./cardInfo";
 
 interface CardTooltipProps {
   id: string;
   info: CardInfo;
   anchorRect: DOMRect;
+  probabilityMultiplier?: number;
 }
 
 export default function CardTooltip({
   id,
   info,
   anchorRect,
+  probabilityMultiplier = 1,
 }: CardTooltipProps) {
   const { t } = useTranslation();
   const { ref, style } = useTooltipPosition(anchorRect);
@@ -58,18 +68,20 @@ export default function CardTooltip({
       )}
       {info.enhancement && (
         <p className="text-muted">
-          <strong>{info.enhancement.name}</strong> —{" "}
-          {info.enhancement.description}
+          <strong>{enhancementName(t, info.enhancement)}</strong> —{" "}
+          {enhancementDescription(t, info.enhancement, probabilityMultiplier)}
         </p>
       )}
       {info.seal && (
         <p className="text-money">
-          <strong>{info.seal.name}</strong> — {info.seal.description}
+          <strong>{sealName(t, info.seal)}</strong> —{" "}
+          {sealDescription(t, info.seal)}
         </p>
       )}
       {info.edition && (
         <p className="text-advisor">
-          <strong>{info.edition.name}</strong> — {info.edition.description}
+          <strong>{cardEditionName(t, info.edition)}</strong> —{" "}
+          {cardEditionDescription(t, info.edition)}
         </p>
       )}
     </div>,

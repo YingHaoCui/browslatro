@@ -144,14 +144,6 @@ const PACK_PICK_LIMIT: Readonly<Record<PackVariant, number>> = {
   mega: 2,
 };
 
-const POOL_LABELS: Readonly<Record<PackPool, string>> = {
-  celestial: "Celestial",
-  arcana: "Arcana",
-  buffoon: "Buffoon",
-  spectral: "Spectral",
-  standard: "Standard",
-};
-
 export type PackOption =
   | { readonly kind: "planet"; readonly planet: PlanetCard }
   | { readonly kind: "tarot"; readonly tarot: TarotCard }
@@ -178,13 +170,6 @@ export function packPrice(variant: PackVariant): number {
   if (variant === "normal") return PACK_NORMAL_PRICE;
   if (variant === "jumbo") return PACK_JUMBO_PRICE;
   return PACK_MEGA_PRICE;
-}
-
-export function packDisplayName(offer: PackOffer): string {
-  const pool = POOL_LABELS[offer.pool];
-  if (offer.variant === "normal") return `${pool} Pack`;
-  const prefix = offer.variant === "jumbo" ? "Jumbo" : "Mega";
-  return `${prefix} ${pool} Pack`;
 }
 
 function rollFromWeights<K extends string>(

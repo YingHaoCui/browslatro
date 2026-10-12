@@ -1,8 +1,10 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { localizedJokerName } from "../../i18n/jokerOverrides";
 import {
-  JOKER_EDITION_INFO,
+  localizedJokerDescription,
+  localizedJokerName,
+} from "../../i18n/jokerOverrides";
+import {
   canSellJoker,
   isJokerActive,
   jokerSellValue,
@@ -10,7 +12,7 @@ import {
   type Joker,
 } from "../../items/jokers";
 import { dynamicJokerDescriptionNode } from "../../items/jokers/dynamicJokerDescription";
-import { formatSellLabel } from "../system/sellLabel";
+import { jokerEditionDescription, jokerEditionName } from "./jokerEditionLabels";
 import { cn, tile } from "../ui/Tile";
 import JokerEditionBadge from "./JokerEditionBadge";
 import JokerStickerBadges from "./JokerStickerBadges";
@@ -74,24 +76,28 @@ function JokerTile({
   onTileDragEnd,
 }: JokerTileProps) {
   const { t, i18n } = useTranslation();
-  const { todoHand, castleSuit, castleSuitName, idolRankName, idolSuitName } =
-    useJokerDescriptionContext();
+  const descriptionContext = useJokerDescriptionContext();
 
   const sellValue = jokerSellValue(joker);
   const jokerSellable = sellable && canSellJoker(joker);
   const debuffed = !isJokerActive(joker);
-  const editionInfo = joker.edition ? JOKER_EDITION_INFO[joker.edition] : null;
-  const editionLabel = editionInfo
+  const editionLabel = joker.edition
     ? ` ${t("a11y.jokerEdition", {
-        name: editionInfo.name,
-        description: editionInfo.description,
+        name: jokerEditionName(t, joker.edition),
+        description: jokerEditionDescription(t, joker.edition),
       })}`
     : "";
   const debuffedLabel = debuffed ? ` ${t("a11y.jokerDebuffed")}` : "";
+  const ariaName = localizedJokerName(i18n.language, joker.id, joker.name);
+  const ariaDescription = localizedJokerDescription(
+    i18n.language,
+    joker.id,
+    joker.description,
+  );
   const ariaLabel = jokerSellable
-    ? `${joker.name}.${debuffedLabel} ${joker.description}.${editionLabel} ${t("a11y.sellHint", { value: sellValue })}`
-    : editionInfo || sellable || debuffed
-      ? `${joker.name}.${debuffedLabel} ${joker.description}.${editionLabel}`
+    ? `${ariaName}.${debuffedLabel} ${ariaDescription}.${editionLabel} ${t("a11y.sellHint", { value: sellValue })}`
+    : joker.edition || sellable || debuffed
+      ? `${ariaName}.${debuffedLabel} ${ariaDescription}.${editionLabel}`
       : undefined;
   const tooltipOpen = tooltipAnchorRect !== null;
 
@@ -147,14 +153,9 @@ function JokerTile({
           data-testid={`joker-tile-description-${joker.id}`}
         >
           {dynamicJokerDescriptionNode({
-            language: i18n.language,
+            ...descriptionContext,
             jokerId: joker.id,
             description: joker.description,
-            todoHand,
-            castleSuit,
-            castleSuitName,
-            idolRankName,
-            idolSuitName,
           })}
         </span>
         {(joker.edition || jokerStickers(joker).length > 0) && (
@@ -169,7 +170,7 @@ function JokerTile({
             data-joker-sell-chip=""
             aria-hidden="true"
           >
-            {formatSellLabel(sellValue)}
+            {t("cardPiles.sellValue", { value: sellValue })}
           </span>
         )}
       </div>
@@ -223,7 +224,7 @@ function JokerTile({
             onSellAt(joker, idx);
           }}
         >
-          {formatSellLabel(sellValue)}
+          {t("cardPiles.sellValue", { value: sellValue })}
         </button>
       )}
       {tooltipOpen && (

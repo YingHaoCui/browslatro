@@ -4,13 +4,16 @@ import { useEscapeToClose } from "../system/useEscapeToClose";
 import { useTranslation } from "react-i18next";
 import type {
   Card as CardType,
-  CardEdition,
-  Enhancement,
   Rank,
   Seal,
   Suit,
 } from "../../cards/types";
 import { tSuitName } from "../../i18n/strings";
+import {
+  CARD_EDITION_LABEL_KEY,
+  ENHANCEMENT_LABEL_KEY,
+  SEAL_LABEL_KEY,
+} from "../../i18n/cardLabelKeys";
 import {
   enhancementDisplayValue,
   type EnhancementValueColor,
@@ -51,17 +54,6 @@ const FACE_RANK_GLYPH: Record<FaceRank, string> = {
   K: "♚",
 };
 
-const ENHANCEMENT_LABEL_KEY = {
-  bonus: "cardLabels.enhancementBonus",
-  mult: "cardLabels.enhancementMult",
-  wild: "cardLabels.enhancementWild",
-  glass: "cardLabels.enhancementGlass",
-  steel: "cardLabels.enhancementSteel",
-  stone: "cardLabels.enhancementStone",
-  gold: "cardLabels.enhancementGold",
-  lucky: "cardLabels.enhancementLucky",
-} as const satisfies Record<Enhancement, string>;
-
 const ENHANCEMENT_VALUE_LABEL_KEY = {
   chips: "a11y.enhancementValueChips",
   mult: "a11y.enhancementValueMult",
@@ -77,19 +69,6 @@ const ENHANCEMENT_VALUE_TIMING_CAPTION_KEY = {
   heldInHand: "cardLabels.valueInHand",
   heldAtEndOfRound: "cardLabels.valueIfHeld",
 } as const satisfies Record<Exclude<EnhancementValueTiming, "scored">, string>;
-
-const SEAL_LABEL_KEY = {
-  gold: "cardLabels.sealGold",
-  red: "cardLabels.sealRed",
-  blue: "cardLabels.sealBlue",
-  purple: "cardLabels.sealPurple",
-} as const satisfies Record<Seal, string>;
-
-const CARD_EDITION_LABEL_KEY = {
-  foil: "cardLabels.editionFoil",
-  holographic: "cardLabels.editionHolographic",
-  polychrome: "cardLabels.editionPolychrome",
-} as const satisfies Record<CardEdition, string>;
 
 const SEAL_DOT = {
   gold: "bg-money",
@@ -478,9 +457,9 @@ function Card({
         <CardTooltip
           id={tooltipId}
           info={getCardInfo(card, {
-            probabilityMultiplier,
             suitLabel: (suit) => tSuitName(t, suit),
           })}
+          probabilityMultiplier={probabilityMultiplier}
           anchorRect={tooltipRect}
         />
       )}

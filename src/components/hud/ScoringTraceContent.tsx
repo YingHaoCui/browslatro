@@ -22,7 +22,7 @@ export default function ScoringTraceContent({
   const { t } = useTranslation();
   const groups = groupEventsByHand(events);
   if (groups.length === 0) {
-    return <p className="text-muted italic">No scoring yet.</p>;
+    return <p className="text-muted italic">{t("scoringTrace.empty")}</p>;
   }
   return (
     <RenderProfiler id="ScoringTraceContent">
@@ -69,7 +69,7 @@ export default function ScoringTraceContent({
             {money.length > 0 ? (
               <div className="mt-1">
                 <MoneyHeading className="font-bold text-money">
-                  Money won
+                  {t("roundEnd.moneyWon")}
                 </MoneyHeading>
                 <ol
                   className="list-decimal pl-6 marker:text-muted"

@@ -249,7 +249,7 @@ export default function Jokers({
           data-testid="consumable-drop-overlay-use"
           aria-hidden="true"
         >
-          <span>Use</span>
+          <span>{t("trays.useDrop")}</span>
         </div>
       )}
       <ul
@@ -314,7 +314,7 @@ export default function Jokers({
               aria-label={t("a11y.emptyJokerSlot")}
               data-testid="joker-tile-empty"
             >
-              Empty
+              {t("trays.emptySlot")}
             </li>
           </Fragment>
         ))}

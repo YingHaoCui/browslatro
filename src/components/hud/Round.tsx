@@ -1,7 +1,8 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import type { Blind, BlindValuesMap } from "../../cards/types";
+import type { Blind } from "../../cards/types";
 import { tHandLabel } from "../../i18n/handLabels";
+import { tBlindName } from "../../i18n/blindLabels";
 import type { BossBlind } from "../../items/bosses";
 import type { HandLabel } from "../../scoring/handEvaluator";
 import { formatNumber } from "../../utils/formatNumber";
@@ -10,14 +11,12 @@ interface RoundProps {
   blind: Blind;
   roundScore: number;
   requiredScore: number;
-  BlindValues: BlindValuesMap;
   boss?: BossBlind | null;
   firstPlayedHandLabel?: HandLabel | null;
 }
 
 function Round({
   blind,
-  BlindValues,
   roundScore,
   requiredScore,
   boss = null,
@@ -25,7 +24,7 @@ function Round({
 }: RoundProps) {
   const { t } = useTranslation();
   const award = "💲".repeat(2 + blind);
-  const blindLabel = blind === 3 && boss ? boss.name : BlindValues[blind];
+  const blindLabel = blind === 3 && boss ? boss.name : tBlindName(t, blind);
   const showLockedHand =
     blind === 3 &&
     boss?.effect.kind === "single-hand-type" &&

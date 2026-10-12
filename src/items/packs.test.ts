@@ -4,7 +4,6 @@ import {
   PACK_MEGA_PRICE,
   PACK_NORMAL_PRICE,
   PACK_VARIANT_WEIGHTS,
-  packDisplayName,
   packOptionsCount,
   packShowsHandArea,
   packPickLimit,
@@ -59,18 +58,6 @@ describe("Pack prices", () => {
     { variant: "mega", price: PACK_MEGA_PRICE },
   ])("$variant pack costs the $variant price", ({ variant, price }) => {
     expect(packPrice(variant)).toBe(price);
-  });
-});
-
-describe("Pack display name", () => {
-  test.each<{ variant: "normal" | "jumbo" | "mega"; expected: string }>([
-    { variant: "normal", expected: "Celestial Pack" },
-    { variant: "jumbo", expected: "Jumbo Celestial Pack" },
-    { variant: "mega", expected: "Mega Celestial Pack" },
-  ])("Celestial $variant label is $expected", ({ variant, expected }) => {
-    expect(
-      packDisplayName({ pool: "celestial", variant, options: [] }),
-    ).toBe(expected);
   });
 });
 
@@ -281,16 +268,6 @@ describe("Arcana pack", () => {
     expect(packOptionsCount("arcana", variant)).toBe(count);
   });
 
-  test.each<{ variant: "normal" | "jumbo" | "mega"; expected: string }>([
-    { variant: "normal", expected: "Arcana Pack" },
-    { variant: "jumbo", expected: "Jumbo Arcana Pack" },
-    { variant: "mega", expected: "Mega Arcana Pack" },
-  ])("display name for $variant is $expected", ({ variant, expected }) => {
-    expect(
-      packDisplayName({ pool: "arcana", variant, options: [] }),
-    ).toBe(expected);
-  });
-
   test("rollPackOptions returns tarot options for arcana", () => {
     const opts = rollPackOptions({
       pool: "arcana",
@@ -359,16 +336,6 @@ describe("Buffoon pack", () => {
     { variant: "mega", count: 4 },
   ])("$variant has $count options", ({ variant, count }) => {
     expect(packOptionsCount("buffoon", variant)).toBe(count);
-  });
-
-  test.each<{ variant: "normal" | "jumbo" | "mega"; expected: string }>([
-    { variant: "normal", expected: "Buffoon Pack" },
-    { variant: "jumbo", expected: "Jumbo Buffoon Pack" },
-    { variant: "mega", expected: "Mega Buffoon Pack" },
-  ])("display name for $variant is $expected", ({ variant, expected }) => {
-    expect(
-      packDisplayName({ pool: "buffoon", variant, options: [] }),
-    ).toBe(expected);
   });
 
   test("rollPackOptions returns joker options for buffoon", () => {
@@ -459,16 +426,6 @@ describe("Spectral pack", () => {
     expect(packOptionsCount("spectral", variant)).toBe(count);
   });
 
-  test.each<{ variant: "normal" | "jumbo" | "mega"; expected: string }>([
-    { variant: "normal", expected: "Spectral Pack" },
-    { variant: "jumbo", expected: "Jumbo Spectral Pack" },
-    { variant: "mega", expected: "Mega Spectral Pack" },
-  ])("display name for $variant is $expected", ({ variant, expected }) => {
-    expect(
-      packDisplayName({ pool: "spectral", variant, options: [] }),
-    ).toBe(expected);
-  });
-
   test("rollPackOptions returns spectral options for spectral pool", () => {
     const opts = rollPackOptions({
       pool: "spectral",
@@ -544,16 +501,6 @@ describe("Standard pack", () => {
     { variant: "mega", count: 5 },
   ])("$variant has $count options", ({ variant, count }) => {
     expect(packOptionsCount("standard", variant)).toBe(count);
-  });
-
-  test.each<{ variant: "normal" | "jumbo" | "mega"; expected: string }>([
-    { variant: "normal", expected: "Standard Pack" },
-    { variant: "jumbo", expected: "Jumbo Standard Pack" },
-    { variant: "mega", expected: "Mega Standard Pack" },
-  ])("display name for $variant is $expected", ({ variant, expected }) => {
-    expect(
-      packDisplayName({ pool: "standard", variant, options: [] }),
-    ).toBe(expected);
   });
 
   test("rollPackOptions returns playing-card options for standard pool", () => {
@@ -791,27 +738,25 @@ describe("forced pack pool maps to its pack definition", () => {
     vi.unstubAllGlobals();
   });
 
-  test.each<{ pool: string; name: string }>([
-    { pool: "standard", name: "Standard Pack" },
-    { pool: "arcana", name: "Arcana Pack" },
-    { pool: "buffoon", name: "Buffoon Pack" },
-    { pool: "spectral", name: "Spectral Pack" },
-    { pool: "celestial", name: "Celestial Pack" },
-  ])("forcing the $pool pool yields a $name offer", ({ pool, name }) => {
+  test.each<{ pool: string }>([
+    { pool: "standard" },
+    { pool: "arcana" },
+    { pool: "buffoon" },
+    { pool: "spectral" },
+    { pool: "celestial" },
+  ])("forcing the $pool pool yields a $pool pack", ({ pool }) => {
     stubForcedPool(pool);
     expect(
       readForcedPackPools().map((forced) =>
-        packDisplayName(
-          rollPackForPool(forced, {
-            planetCatalog: createPlanetCatalog(),
-            tarotCatalog: createTarotCatalog(),
-            jokerCatalog: createJokerCatalog(),
-            spectralCatalog: createSpectralCatalog(),
-            rng: seededRng(90),
-          }),
-        ),
+        rollPackForPool(forced, {
+          planetCatalog: createPlanetCatalog(),
+          tarotCatalog: createTarotCatalog(),
+          jokerCatalog: createJokerCatalog(),
+          spectralCatalog: createSpectralCatalog(),
+          rng: seededRng(90),
+        }).pool,
       ),
-    ).toEqual([name]);
+    ).toEqual([pool]);
   });
 });
 

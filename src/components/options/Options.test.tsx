@@ -351,6 +351,15 @@ describe("Options — language picker", () => {
     ).toBeInTheDocument();
   });
 
+  test("offers 简体中文 as an option", async () => {
+    const user = userEvent.setup();
+    render(<Options onNewGame={() => {}} />);
+    await user.click(screen.getByText("Options"));
+    expect(
+      screen.getByRole("option", { name: "简体中文" }),
+    ).toBeInTheDocument();
+  });
+
   test("selecting Hawaiian translates the modal heading", async () => {
     const user = userEvent.setup();
     render(<Options onNewGame={() => {}} />);
@@ -359,6 +368,25 @@ describe("Options — language picker", () => {
     expect(
       await screen.findByRole("heading", { name: "Nā Koho" }),
     ).toBeInTheDocument();
+  });
+
+  test("selecting Simplified Chinese translates the modal heading", async () => {
+    const user = userEvent.setup();
+    render(<Options onNewGame={() => {}} />);
+    await user.click(screen.getByText("Options"));
+    await user.selectOptions(screen.getByLabelText("Language"), "zh");
+    expect(
+      await screen.findByRole("heading", { name: "选项" }),
+    ).toBeInTheDocument();
+  });
+
+  test("selecting Simplified Chinese persists the locale to localStorage", async () => {
+    const user = userEvent.setup();
+    render(<Options onNewGame={() => {}} />);
+    await user.click(screen.getByText("Options"));
+    await user.selectOptions(screen.getByLabelText("Language"), "zh");
+    await screen.findByLabelText("语言");
+    expect(window.localStorage.getItem(LOCALE_KEY)).toBe("zh");
   });
 
   test("selecting Hawaiian persists the locale to localStorage", async () => {

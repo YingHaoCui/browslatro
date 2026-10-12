@@ -1,5 +1,4 @@
 import { useTranslation } from "react-i18next";
-import { BlindValues } from "../../constants";
 import Round from "./Round";
 import RunInfo from "./RunInfo";
 import Options from "../options/Options";
@@ -57,7 +56,6 @@ export default function Sidebar({
       <div className="flex flex-col gap-4 portrait-narrow:min-w-40 portrait-narrow:flex-1 landscape-narrow:gap-2">
         <Round
           blind={blind}
-          BlindValues={BlindValues}
           roundScore={roundScore}
           requiredScore={requiredScore}
           boss={currentBoss}

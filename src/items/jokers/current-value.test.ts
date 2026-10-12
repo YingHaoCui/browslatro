@@ -44,7 +44,6 @@ import {
   createStoneJoker,
   createThrowbackJoker,
   jokerCurrentValue,
-  jokerCurrentValueLabel,
   jokerEnhancementFilter,
   type Joker,
   type JokerCurrentValueContext,
@@ -332,43 +331,5 @@ describe("jokerEnhancementFilter", () => {
 
   test("a non-enhancement joker has no filter", () => {
     expect(jokerEnhancementFilter(createBannerJoker())).toBeNull();
-  });
-});
-
-describe("jokerCurrentValueLabel", () => {
-  test("formats accumulated Mult", () => {
-    expect(jokerCurrentValueLabel({ kind: "mult", value: 14 })).toBe(
-      "Currently: +14 Mult",
-    );
-  });
-
-  test("formats accumulated Chips", () => {
-    expect(jokerCurrentValueLabel({ kind: "chips", value: 30 })).toBe(
-      "Currently: +30 Chips",
-    );
-  });
-
-  test("formats a sell value", () => {
-    expect(jokerCurrentValueLabel({ kind: "sell-value", value: 12 })).toBe(
-      "Currently: $12 sell value",
-    );
-  });
-
-  test("formats an X Mult factor to two decimals", () => {
-    expect(jokerCurrentValueLabel({ kind: "x-mult", value: 1.9700000001 })).toBe(
-      "Currently: X1.97 Mult",
-    );
-  });
-
-  test("formats a plural hands-until-trigger countdown", () => {
-    expect(
-      jokerCurrentValueLabel({ kind: "hands-until-x-mult", hands: 6, xmult: 4 }),
-    ).toBe("X4 Mult in 6 hands");
-  });
-
-  test("formats a singular hands-until-trigger countdown", () => {
-    expect(
-      jokerCurrentValueLabel({ kind: "hands-until-x-mult", hands: 1, xmult: 4 }),
-    ).toBe("X4 Mult in 1 hand");
   });
 });

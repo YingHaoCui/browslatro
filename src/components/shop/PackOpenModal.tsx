@@ -20,25 +20,26 @@ import {
 import {
   type PackOffer,
   type PackOption,
-  packDisplayName,
   packPickLimit,
 } from "../../items/packs";
 import type { Card as CardType } from "../../cards/types";
 import { sortCards, type SortMode } from "../../cards/deck";
 import { spectralNeedsTarget } from "../../items/spectrals";
 import {
-  JOKER_STICKER_INFO,
-  PERISHABLE_LIFE,
   jokerStickers,
   type Joker,
+  type JokerSticker,
 } from "../../items/jokers";
-import Card from "../cards/Card";
-import CardModifierBadges, {
+import { localizedPackName } from "../../i18n/packNames";
+import {
   CARD_EDITION_LABEL_KEY,
   ENHANCEMENT_LABEL_KEY,
   JOKER_EDITION_LABEL_KEY,
   SEAL_LABEL_KEY,
-} from "../cards/CardModifierBadges";
+} from "../../i18n/cardLabelKeys";
+import { stickerLine, stickerName } from "../jokers/jokerStickerLabels";
+import Card from "../cards/Card";
+import CardModifierBadges from "../cards/CardModifierBadges";
 import JokerStickerBadges from "../jokers/JokerStickerBadges";
 import { announce } from "../system/LiveAnnouncer";
 import Modal from "../system/Modal";
@@ -99,23 +100,17 @@ interface OptionView {
   readonly card?: CardType;
 }
 
-function stickerSummary(joker: Joker): string {
+function stickerSummary(t: TFunction, joker: Joker): string {
   return jokerStickers(joker)
-    .map((s) => JOKER_STICKER_INFO[s.kind].name)
+    .map((s) => stickerName(t, s.kind))
     .join(", ");
 }
 
-function stickerTooltip(joker: Joker): string {
+function stickerTooltip(t: TFunction, joker: Joker): string {
   return jokerStickers(joker)
-    .map((s) => {
-      const info = JOKER_STICKER_INFO[s.kind];
-      if (s.kind === "perishable") {
-        if (s.roundsHeld >= PERISHABLE_LIFE) return `${info.name} — debuffed`;
-        const remaining = PERISHABLE_LIFE - s.roundsHeld;
-        return `${info.name} — ${remaining} of ${PERISHABLE_LIFE} rounds left`;
-      }
-      return `${info.name} — ${info.description}`;
-    })
+    .map((s: JokerSticker) =>
+      `${stickerName(t, s.kind)} — ${stickerLine(t, s)}`,
+    )
     .join("\n");
 }
 
@@ -295,7 +290,7 @@ export default function PackOpenModal({
   const packOffersJoker = pack.options.some(
     (option) => option.kind === "joker",
   );
-  const title = packDisplayName(pack);
+  const title = localizedPackName(t, pack.pool, pack.variant);
   const selectedCount = previewSelectedIds?.size ?? 0;
   const subtitle =
     previewHand.length > 0 && selectedCount > 0
@@ -382,11 +377,11 @@ export default function PackOpenModal({
                     : undefined;
             const stickerNames =
               view.joker && jokerStickers(view.joker).length > 0
-                ? stickerSummary(view.joker)
+                ? stickerSummary(t, view.joker)
                 : "";
             const stickerHover =
               view.joker && jokerStickers(view.joker).length > 0
-                ? stickerTooltip(view.joker)
+                ? stickerTooltip(t, view.joker)
                 : undefined;
             const modifierLabels: string[] = [];
             if (view.card?.enhancement)

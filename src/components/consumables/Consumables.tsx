@@ -10,7 +10,6 @@ import {
   consumableUseBlock,
   type Consumable,
 } from "../../items/consumables";
-import { formatSellLabel } from "../system/sellLabel";
 import { Tray } from "../ui/Panel";
 import { emptyTile, tile } from "../ui/Tile";
 
@@ -21,6 +20,12 @@ const KIND_ACCENT = {
   tarot: "advisor",
   spectral: "success",
 } as const;
+
+const KIND_LABEL_KEY = {
+  planet: "shop.kindPlanet",
+  tarot: "shop.kindTarot",
+  spectral: "shop.kindSpectral",
+} as const satisfies Record<Consumable["kind"], string>;
 
 interface ConsumablesProps {
   consumables: ReadonlyArray<Consumable>;
@@ -92,7 +97,7 @@ export default function Consumables({
                     entry.card.id,
                     entry.card.name,
                   ),
-                  kind: entry.kind,
+                  kind: t(KIND_LABEL_KEY[entry.kind]),
                   value: sellValue,
                 })}
                 disabled={interactionDisabled}
@@ -125,7 +130,7 @@ export default function Consumables({
                     className="mt-auto shrink-0 font-semibold text-money"
                     aria-hidden="true"
                   >
-                    {formatSellLabel(sellValue)}
+                    {t("cardPiles.sellValue", { value: sellValue })}
                   </span>
                 )}
               </button>
@@ -141,7 +146,7 @@ export default function Consumables({
               aria-label={t("a11y.emptyConsumableSlot")}
               disabled
             >
-              Empty
+              {t("trays.emptySlot")}
             </button>
           </li>
         ))}

@@ -37,7 +37,7 @@ describe("JokerEditionBadge", () => {
       screen
         .getByTestId("joker-edition-badge-foil")
         .getAttribute("aria-label"),
-    ).toMatch(/Foil edition: \+50 chips when scored/);
+    ).toMatch(/Foil edition: \+50 Chips when scored/);
   });
 
   test("a negative badge exposes the slot effect in its accessible label", () => {

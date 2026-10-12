@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import Round from "./Round";
 import { withGame } from "../../stories/decorators";
-import { BlindValues } from "../../constants";
 import {
   createBossCatalog,
   type BossBlind as BossBlindSpec,
@@ -19,7 +18,6 @@ const meta = {
   decorators: [withGame()],
   args: {
     blind: 1,
-    BlindValues,
     roundScore: 0,
     requiredScore: 300,
     boss: null,

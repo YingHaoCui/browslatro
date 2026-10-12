@@ -1,13 +1,13 @@
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { localizedJokerName } from "../../i18n/jokerOverrides";
+import { formatChanceRatio } from "../cards/cardInfo";
 import { dynamicJokerDescriptionNode } from "../../items/jokers/dynamicJokerDescription";
+import { jokerEditionDescription, jokerEditionName } from "./jokerEditionLabels";
+import { stickerLine, stickerName } from "./jokerStickerLabels";
 import {
-  JOKER_EDITION_INFO,
-  JOKER_STICKER_INFO,
-  PERISHABLE_LIFE,
   jokerCurrentValue,
-  jokerCurrentValueLabel,
   jokerEnhancementFilter,
   jokerSellValue,
   jokerStickers,
@@ -17,7 +17,6 @@ import {
   type Joker,
   type JokerCurrentValue,
   type JokerRarity,
-  type JokerSticker,
 } from "../../items/jokers";
 import { useGame } from "../../store/game";
 import {
@@ -26,7 +25,6 @@ import {
   countMissingFromFullDeck,
   fullDeckSize,
 } from "../../cards/deckBuild";
-import { formatChanceRatio } from "../cards/cardInfo";
 import { useTooltipPosition } from "../system/useTooltipPosition";
 import { useJokerDescriptionContext } from "./useJokerDescriptionContext";
 
@@ -45,6 +43,78 @@ const RARITY_TEXT = {
   legendary: "font-semibold text-money uppercase",
 } as const;
 
+const RARITY_LABEL_KEY = {
+  common: "jokers.rarityCommon",
+  uncommon: "jokers.rarityUncommon",
+  rare: "jokers.rarityRare",
+  legendary: "jokers.rarityLegendary",
+} as const satisfies Record<JokerRarity, string>;
+
+type CopyTarget =
+  | { readonly kind: "none" }
+  | { readonly kind: "incompatible" }
+  | { readonly kind: "joker"; readonly joker: Joker };
+
+function computeCopyTarget(
+  jokers: ReadonlyArray<Joker>,
+  index: number,
+): CopyTarget {
+  const effect = jokers[index]?.effect;
+  if (
+    effect?.kind !== "copy-right-joker" &&
+    effect?.kind !== "copy-leftmost-joker"
+  ) {
+    return { kind: "none" };
+  }
+  if (resolveJokerEffect(jokers, index).kind === "noop") {
+    return { kind: "incompatible" };
+  }
+  return { kind: "joker", joker: jokers[resolveJokerTargetIndex(jokers, index)] };
+}
+
+function copyTargetLabel(
+  t: TFunction,
+  locale: string,
+  target: CopyTarget,
+): string | null {
+  if (target.kind === "none") return null;
+  if (target.kind === "incompatible") {
+    return t("jokers.copying", { target: t("jokers.copyIncompatible") });
+  }
+  return t("jokers.copying", {
+    target: localizedJokerName(locale, target.joker.id, target.joker.name),
+  });
+}
+
+function currentValueLabel(
+  t: TFunction,
+  value: JokerCurrentValue,
+): string {
+  switch (value.kind) {
+    case "mult":
+      return t("jokers.currentlyMult", { value: value.value });
+    case "chips":
+      return t("jokers.currentlyChips", { value: value.value });
+    case "x-mult":
+      return t("jokers.currentlyXMult", {
+        value: Math.round(value.value * 100) / 100,
+      });
+    case "sell-value":
+      return t("jokers.currentlySellValue", { value: value.value });
+    case "money":
+      return t("jokers.currentlyMoney", { value: value.value });
+    case "hand-size":
+      return t("jokers.currentlyHandSize", { value: value.value });
+    case "hands-remaining":
+      return t("jokers.currentlyHandsLeft", { count: value.value });
+    case "hands-until-x-mult":
+      return t("jokers.xMultInHands", {
+        value: value.xmult,
+        count: value.hands,
+      });
+  }
+}
+
 export default function JokerTooltip({
   id,
   joker,
@@ -52,15 +122,14 @@ export default function JokerTooltip({
   jokerIndex = 0,
   anchorRect,
 }: JokerTooltipProps) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { ref, style } = useTooltipPosition(anchorRect);
-  const copyTargetLabel = computeCopyTargetLabel(jokers, jokerIndex);
-  const editionInfo = joker.edition ? JOKER_EDITION_INFO[joker.edition] : null;
-  const { todoHand, castleSuit, castleSuitName, idolRankName, idolSuitName } =
-    useJokerDescriptionContext();
+  const descriptionContext = useJokerDescriptionContext();
+  const copyTarget = computeCopyTarget(jokers, jokerIndex);
+  const copyLabel = copyTargetLabel(t, i18n.language, copyTarget);
   const sellValue = jokerSellValue(joker);
   const progress = useEnhancedThresholdProgress(joker);
-  const effectiveOdds = useEffectiveOdds(joker);
+  const effectiveOdds = useEffectiveOdds(t, joker);
   const currentValue = useCurrentValue(joker);
   return createPortal(
     <div
@@ -74,27 +143,22 @@ export default function JokerTooltip({
       <p className="text-sm font-bold">
         {localizedJokerName(i18n.language, joker.id, joker.name)}
       </p>
-      {copyTargetLabel !== null && (
+      {copyLabel !== null && (
         <p className="text-advisor" data-testid="joker-tooltip-copy-target">
-          Copying: {copyTargetLabel}
+          {copyLabel}
         </p>
       )}
       <p
         className={RARITY_TEXT[joker.rarity]}
         data-testid="joker-tooltip-rarity"
       >
-        {rarityLabel(joker.rarity)}
+        {t(RARITY_LABEL_KEY[joker.rarity])}
       </p>
       <p className="text-muted" data-testid="joker-tooltip-description">
         {dynamicJokerDescriptionNode({
-          language: i18n.language,
+          ...descriptionContext,
           jokerId: joker.id,
           description: joker.description,
-          todoHand,
-          castleSuit,
-          castleSuitName,
-          idolRankName,
-          idolSuitName,
         })}
       </p>
       {currentValue && (
@@ -102,22 +166,26 @@ export default function JokerTooltip({
           className="font-semibold text-chips"
           data-testid="joker-tooltip-current-value"
         >
-          {jokerCurrentValueLabel(currentValue)}
+          {currentValueLabel(t, currentValue)}
         </p>
       )}
       {effectiveOdds && (
         <p className="text-muted" data-testid="joker-tooltip-effective-odds">
-          Effective odds: {effectiveOdds}
+          {t("jokers.effectiveOdds", { odds: effectiveOdds })}
         </p>
       )}
       {progress && (
         <p className="text-muted" data-testid="joker-tooltip-enhanced-progress">
-          Enhanced cards: {progress.count} / {progress.threshold}
+          {t("jokers.enhancedProgress", {
+            count: progress.count,
+            total: progress.threshold,
+          })}
         </p>
       )}
-      {editionInfo && (
+      {joker.edition && (
         <p className="text-chips">
-          <strong>{editionInfo.name}</strong> — {editionInfo.description}
+          <strong>{jokerEditionName(t, joker.edition)}</strong> —{" "}
+          {jokerEditionDescription(t, joker.edition)}
         </p>
       )}
       {jokerStickers(joker).map((sticker, idx) => (
@@ -126,46 +194,16 @@ export default function JokerTooltip({
           className="text-money"
           data-testid={`joker-tooltip-sticker-${sticker.kind}`}
         >
-          <strong>{JOKER_STICKER_INFO[sticker.kind].name}</strong> —{" "}
-          {stickerLine(sticker)}
+          <strong>{stickerName(t, sticker.kind)}</strong> —{" "}
+          {stickerLine(t, sticker)}
         </p>
       ))}
       <p className="mt-1 border-t border-border pt-1 font-semibold text-money">
-        Sell for ${sellValue}
+        {t("jokers.sellFor", { value: sellValue })}
       </p>
     </div>,
     document.body,
   );
-}
-
-function computeCopyTargetLabel(
-  jokers: ReadonlyArray<Joker>,
-  index: number,
-): string | null {
-  const effect = jokers[index]?.effect;
-  if (
-    effect?.kind !== "copy-right-joker" &&
-    effect?.kind !== "copy-leftmost-joker"
-  ) {
-    return null;
-  }
-  if (resolveJokerEffect(jokers, index).kind === "noop") {
-    return "incompatible";
-  }
-  return jokers[resolveJokerTargetIndex(jokers, index)].name;
-}
-
-function rarityLabel(rarity: JokerRarity): string {
-  return rarity.charAt(0).toUpperCase() + rarity.slice(1);
-}
-
-function stickerLine(sticker: JokerSticker): string {
-  if (sticker.kind === "perishable") {
-    if (sticker.roundsHeld >= PERISHABLE_LIFE) return "debuffed";
-    const remaining = PERISHABLE_LIFE - sticker.roundsHeld;
-    return `${remaining} of ${PERISHABLE_LIFE} rounds left`;
-  }
-  return JOKER_STICKER_INFO[sticker.kind].description;
 }
 
 function useEnhancedThresholdProgress(
@@ -233,10 +271,10 @@ function useCurrentValue(joker: Joker): JokerCurrentValue | null {
   });
 }
 
-function useEffectiveOdds(joker: Joker): string | null {
+function useEffectiveOdds(t: TFunction, joker: Joker): string | null {
   const multiplier = useGame((s) => probabilityMultiplierFromJokers(s.jokers));
   const baseChance = getJokerBaseChance(joker);
   if (baseChance === null) return null;
   if (multiplier === 1) return null;
-  return formatChanceRatio(baseChance, multiplier);
+  return formatChanceRatio(t, baseChance, multiplier);
 }

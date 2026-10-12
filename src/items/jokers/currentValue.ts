@@ -151,32 +151,3 @@ export function jokerCurrentValue(
       return null;
   }
 }
-
-export function jokerCurrentValueLabel(value: JokerCurrentValue): string {
-  switch (value.kind) {
-    case "mult":
-      return `Currently: +${value.value} Mult`;
-    case "chips":
-      return `Currently: +${value.value} Chips`;
-    case "x-mult":
-      return `Currently: X${formatFactor(value.value)} Mult`;
-    case "sell-value":
-      return `Currently: $${value.value} sell value`;
-    case "money":
-      return `Currently: $${value.value} at end of round`;
-    case "hand-size":
-      return `Currently: +${value.value} hand size`;
-    case "hands-remaining":
-      return `Currently: ${value.value} ${
-        value.value === 1 ? "hand" : "hands"
-      } left`;
-    case "hands-until-x-mult":
-      return `X${value.xmult} Mult in ${value.hands} ${
-        value.hands === 1 ? "hand" : "hands"
-      }`;
-  }
-}
-
-function formatFactor(value: number): string {
-  return String(Math.round(value * 100) / 100);
-}

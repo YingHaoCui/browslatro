@@ -590,7 +590,9 @@ describe("Joker tooltip — copy-joker target", () => {
     const user = userEvent.setup();
     render(<Jokers jokers={[createBlueprintJoker(), createPlusFourMultJoker()]} />);
     await user.hover(screen.getByTestId("joker-tile-filled-blueprint"));
-    expect(screen.getByTestId("joker-tooltip-copy-target")).toHaveTextContent("+4 Mult");
+    expect(screen.getByTestId("joker-tooltip-copy-target")).toHaveTextContent(
+      "Copying: Joker",
+    );
   });
 
   test("Blueprint as the rightmost joker shows 'incompatible'", async () => {
@@ -604,7 +606,9 @@ describe("Joker tooltip — copy-joker target", () => {
     const user = userEvent.setup();
     render(<Jokers jokers={[createPlusFourMultJoker(), createBrainstormJoker()]} />);
     await user.hover(screen.getByTestId("joker-tile-filled-brainstorm"));
-    expect(screen.getByTestId("joker-tooltip-copy-target")).toHaveTextContent("+4 Mult");
+    expect(screen.getByTestId("joker-tooltip-copy-target")).toHaveTextContent(
+      "Copying: Joker",
+    );
   });
 
   test("Brainstorm alone shows 'incompatible' (self-referential cycle)", async () => {

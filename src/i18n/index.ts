@@ -1,14 +1,15 @@
 import i18n, { type BackendModule, type ResourceLanguage } from "i18next";
 import { initReactI18next } from "react-i18next";
-import { registerLocaleContent } from "./localeContent";
+import { registerLocaleContent, registerJokerPlaceholders } from "./localeContent";
 import { en } from "./locales/en";
 
-export const SUPPORTED_LOCALES = ["en", "haw"] as const;
+export const SUPPORTED_LOCALES = ["en", "haw", "zh"] as const;
 export type Locale = (typeof SUPPORTED_LOCALES)[number];
 
 export const LOCALE_NAMES: Readonly<Record<Locale, string>> = {
   en: "English",
   haw: "ʻŌlelo Hawaiʻi",
+  zh: "简体中文",
 };
 
 const STORAGE_KEY = "browslatro:locale";
@@ -18,10 +19,11 @@ export function isLocale(value: string | null): value is Locale {
 }
 
 export function detectLocale(): Locale {
-  if (typeof window === "undefined") return "en";
+  if (typeof document === "undefined") return "en";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (isLocale(stored)) return stored;
   const nav = window.navigator.language?.toLowerCase() ?? "";
+  if (nav === "zh" || nav.startsWith("zh-")) return "zh";
   return nav === "haw" || nav.startsWith("haw-") ? "haw" : "en";
 }
 
@@ -37,6 +39,12 @@ const lazyLocaleLoaders: Record<
     const { haw } = await import("./locales/haw");
     registerLocaleContent("haw", haw);
     return haw;
+  },
+  zh: async () => {
+    const { zh, zhJokerPlaceholders } = await import("./locales/zh");
+    registerLocaleContent("zh", zh);
+    registerJokerPlaceholders("zh", zhJokerPlaceholders);
+    return zh;
   },
 };
 

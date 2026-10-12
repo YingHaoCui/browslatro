@@ -1,6 +1,12 @@
 import { useTranslation } from "react-i18next";
 import type { CardEdition, Enhancement, Seal } from "../../cards/types";
 import type { JokerEdition } from "../../items/jokers";
+import {
+  CARD_EDITION_LABEL_KEY,
+  ENHANCEMENT_LABEL_KEY,
+  JOKER_EDITION_LABEL_KEY,
+  SEAL_LABEL_KEY,
+} from "../../i18n/cardLabelKeys";
 import { Badge } from "../ui/Badge";
 
 type BadgeTone =
@@ -11,37 +17,6 @@ type BadgeTone =
   | "success"
   | "advisor"
   | "muted";
-
-export const ENHANCEMENT_LABEL_KEY = {
-  bonus: "cardLabels.enhancementBonus",
-  mult: "cardLabels.enhancementMult",
-  wild: "cardLabels.enhancementWild",
-  glass: "cardLabels.enhancementGlass",
-  steel: "cardLabels.enhancementSteel",
-  stone: "cardLabels.enhancementStone",
-  gold: "cardLabels.enhancementGold",
-  lucky: "cardLabels.enhancementLucky",
-} as const satisfies Record<Enhancement, string>;
-
-export const CARD_EDITION_LABEL_KEY = {
-  foil: "cardLabels.editionFoil",
-  holographic: "cardLabels.editionHolographic",
-  polychrome: "cardLabels.editionPolychrome",
-} as const satisfies Record<CardEdition, string>;
-
-export const SEAL_LABEL_KEY = {
-  gold: "cardLabels.sealGold",
-  red: "cardLabels.sealRed",
-  blue: "cardLabels.sealBlue",
-  purple: "cardLabels.sealPurple",
-} as const satisfies Record<Seal, string>;
-
-export const JOKER_EDITION_LABEL_KEY = {
-  foil: "cardLabels.editionFoil",
-  holographic: "cardLabels.editionHolographic",
-  polychrome: "cardLabels.editionPolychrome",
-  negative: "cardLabels.editionNegative",
-} as const satisfies Record<JokerEdition, string>;
 
 const ENHANCEMENT_TONE = {
   bonus: "chips",

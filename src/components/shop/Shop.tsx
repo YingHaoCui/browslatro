@@ -15,7 +15,14 @@ import {
   localizedVoucherDescription,
   localizedVoucherName,
 } from "../../i18n/voucherOverrides";
-import { packDisplayName, packOptionsCount, packPickLimit } from "../../items/packs";
+import { localizedPackName } from "../../i18n/packNames";
+import { joinList } from "../../i18n/listFormat";
+import {
+  ENHANCEMENT_LABEL_KEY,
+  CARD_EDITION_LABEL_KEY,
+  SEAL_LABEL_KEY,
+} from "../../i18n/cardLabelKeys";
+import { packOptionsCount, packPickLimit } from "../../items/packs";
 import { rerollCostFor, type ShopItem } from "../../items/shop";
 import {
   applyShopDiscount,
@@ -184,6 +191,7 @@ const SUIT_GLYPH: Record<string, string> = {
 
 function playingCardSummary(
   t: TFunction,
+  locale: string,
   card: import("../../cards/types").Card,
 ): {
   readonly name: string;
@@ -191,13 +199,27 @@ function playingCardSummary(
 } {
   const name = `${card.rank}${SUIT_GLYPH[card.suit] ?? ""}`;
   const traits: string[] = [];
-  if (card.enhancement) traits.push(`${card.enhancement} enhancement`);
-  if (card.edition) traits.push(`${card.edition} edition`);
-  if (card.seal) traits.push(`${card.seal} seal`);
+  if (card.enhancement) {
+    traits.push(
+      t("shop.traitEnhancement", {
+        name: t(ENHANCEMENT_LABEL_KEY[card.enhancement]),
+      }),
+    );
+  }
+  if (card.edition) {
+    traits.push(
+      t("shop.traitEdition", { name: t(CARD_EDITION_LABEL_KEY[card.edition]) }),
+    );
+  }
+  if (card.seal) {
+    traits.push(t("shop.traitSeal", { name: t(SEAL_LABEL_KEY[card.seal]) }));
+  }
   const description =
     traits.length === 0
       ? t("shop.addsPlayingCard")
-      : t("shop.addsPlayingCardWith", { traits: traits.join(", ") });
+      : t("shop.addsPlayingCardWith", {
+          traits: joinList(locale, traits),
+        });
   return { name, description };
 }
 
@@ -239,7 +261,7 @@ function offerSubject(
     case "spectral":
       return localizedSubject(locale, offer.spectral);
     case "playing-card": {
-      const summary = playingCardSummary(t, offer.card);
+      const summary = playingCardSummary(t, locale, offer.card);
       return {
         id: `playing-card-${offer.card.id}`,
         name: summary.name,
@@ -251,7 +273,7 @@ function offerSubject(
       const pickCount = packPickLimit(offer.pack.variant);
       return {
         id: `pack-${offer.pack.pool}-${offer.pack.variant}`,
-        name: packDisplayName(offer.pack),
+        name: localizedPackName(t, offer.pack.pool, offer.pack.variant),
         description:
           pickCount === 1
             ? t("shop.packOpenToPickOne", { options: optionCount })

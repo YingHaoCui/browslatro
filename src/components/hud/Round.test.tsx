@@ -1,14 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import Round from "./Round";
-import type { BlindValuesMap } from "../../cards/types";
 import type { BossBlind } from "../../items/bosses";
 import { formatNumber } from "../../utils/formatNumber";
-
-const BlindValues: BlindValuesMap = {
-  1: "Small Blind",
-  2: "Big Blind",
-  3: "Boss Blind",
-};
 
 describe("Round", () => {
   test.each([
@@ -23,7 +16,6 @@ describe("Round", () => {
       render(
         <Round
           blind={blind}
-          BlindValues={BlindValues}
           roundScore={roundScore}
           requiredScore={score}
         />,
@@ -51,7 +43,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={1200}
         boss={wall}
@@ -64,7 +55,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={1200}
         boss={wall}
@@ -79,7 +69,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={1}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={300}
         boss={wall}
@@ -94,7 +83,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={2}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={450}
         boss={wall}
@@ -109,7 +97,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     const { container } = render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={null}
@@ -122,7 +109,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={1}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={300}
         boss={wall}
@@ -136,7 +122,6 @@ describe("Round — Boss Blind name (phase 0)", () => {
     render(
       <Round
         blind={2}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={450}
         boss={wall}
@@ -146,11 +131,10 @@ describe("Round — Boss Blind name (phase 0)", () => {
     expect(screen.getByText("Big Blind")).toBeInTheDocument();
   });
 
-  test("falls back to BlindValues[3] when boss prop is null", () => {
+  test("falls back to the boss blind label when boss prop is null", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={null}
@@ -183,7 +167,6 @@ describe("Round — The Mouth locked-hand indicator", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={mouth}
@@ -199,7 +182,6 @@ describe("Round — The Mouth locked-hand indicator", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={mouth}
@@ -213,7 +195,6 @@ describe("Round — The Mouth locked-hand indicator", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={wall}
@@ -227,7 +208,6 @@ describe("Round — The Mouth locked-hand indicator", () => {
     render(
       <Round
         blind={1}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={300}
         boss={mouth}
@@ -241,7 +221,6 @@ describe("Round — The Mouth locked-hand indicator", () => {
     render(
       <Round
         blind={3}
-        BlindValues={BlindValues}
         roundScore={0}
         requiredScore={600}
         boss={mouth}

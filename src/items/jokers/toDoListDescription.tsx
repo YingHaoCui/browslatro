@@ -1,22 +1,25 @@
 import type { ReactNode } from "react";
-import type { HandLabel } from "../../scoring/handEvaluator";
-
-const PLACEHOLDER = "???";
+import type { TFunction } from "i18next";
 
 export function toDoListDescriptionText(
+  t: TFunction,
   base: string,
-  todoHand: HandLabel | null,
+  todoHandLabel: string | null,
 ): string {
-  return `${base} — Currently: ${todoHand ?? PLACEHOLDER}`;
+  return `${base} — ${t("jokers.currently")} ${
+    todoHandLabel ?? t("jokers.todoUnset")
+  }`;
 }
 
 export function toDoListDescriptionNode(
+  t: TFunction,
   base: string,
-  todoHand: HandLabel | null,
+  todoHandLabel: string | null,
 ): ReactNode {
   return (
     <>
-      {base} — Currently: <strong>{todoHand ?? PLACEHOLDER}</strong>
+      {base} — {t("jokers.currently")}{" "}
+      <strong>{todoHandLabel ?? t("jokers.todoUnset")}</strong>
     </>
   );
 }

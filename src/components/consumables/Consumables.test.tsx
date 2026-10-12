@@ -69,7 +69,7 @@ describe("Consumables", () => {
     renderConsumables({ consumables: [filled] });
     expect(
       screen.getByRole("button", {
-        name: new RegExp(`^Use ${tarot.name} \\(tarot\\)`),
+        name: new RegExp(`^Use ${tarot.name} \\(Tarot\\)`),
       }),
     ).toBeInTheDocument();
   });

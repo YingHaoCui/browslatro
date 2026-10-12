@@ -17,6 +17,11 @@ describe("detectLocale in the browser", () => {
     expect(detectLocale()).toBe("haw");
   });
 
+  test("returns a stored zh locale", () => {
+    window.localStorage.setItem(STORAGE_KEY, "zh");
+    expect(detectLocale()).toBe("zh");
+  });
+
   test("ignores a stored unsupported locale", () => {
     window.localStorage.setItem(STORAGE_KEY, "klingon");
     expect(detectLocale()).toBe("en");
@@ -27,6 +32,22 @@ describe("detectLocale in the browser", () => {
       .spyOn(window.navigator, "language", "get")
       .mockReturnValue("haw-US");
     expect(detectLocale()).toBe("haw");
+    spy.mockRestore();
+  });
+
+  test("uses the navigator language when it is Simplified Chinese", () => {
+    const spy = vi
+      .spyOn(window.navigator, "language", "get")
+      .mockReturnValue("zh-CN");
+    expect(detectLocale()).toBe("zh");
+    spy.mockRestore();
+  });
+
+  test("uses the navigator language for a bare zh", () => {
+    const spy = vi
+      .spyOn(window.navigator, "language", "get")
+      .mockReturnValue("zh");
+    expect(detectLocale()).toBe("zh");
     spy.mockRestore();
   });
 
@@ -43,6 +64,15 @@ describe("detectLocale in the browser", () => {
     const spy = vi
       .spyOn(window.navigator, "language", "get")
       .mockReturnValue("haw");
+    expect(detectLocale()).toBe("en");
+    spy.mockRestore();
+  });
+
+  test("prefers the stored en locale over a zh navigator language", () => {
+    window.localStorage.setItem(STORAGE_KEY, "en");
+    const spy = vi
+      .spyOn(window.navigator, "language", "get")
+      .mockReturnValue("zh-CN");
     expect(detectLocale()).toBe("en");
     spy.mockRestore();
   });
@@ -77,6 +107,27 @@ describe("Hawaiian rendering", () => {
 
   test("RunProgress renders English labels after switching back", async () => {
     await i18n.changeLanguage("haw");
+    await i18n.changeLanguage("en");
+    render(<RunProgress ante={1} round={1} money={4} />);
+    expect(screen.getByText("Money")).toBeInTheDocument();
+  });
+});
+
+describe("Simplified Chinese rendering", () => {
+  test("RunProgress renders the Chinese money label", async () => {
+    await i18n.changeLanguage("zh");
+    render(<RunProgress ante={1} round={1} money={4} />);
+    expect(screen.getByText("资金")).toBeInTheDocument();
+  });
+
+  test("RunProgress does not render the English money label in Chinese", async () => {
+    await i18n.changeLanguage("zh");
+    render(<RunProgress ante={1} round={1} money={4} />);
+    expect(screen.queryByText("Money")).not.toBeInTheDocument();
+  });
+
+  test("RunProgress renders English labels after switching back", async () => {
+    await i18n.changeLanguage("zh");
     await i18n.changeLanguage("en");
     render(<RunProgress ante={1} round={1} money={4} />);
     expect(screen.getByText("Money")).toBeInTheDocument();

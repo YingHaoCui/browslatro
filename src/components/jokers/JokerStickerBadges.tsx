@@ -2,12 +2,12 @@ import { Badge } from "../ui/Badge";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import {
-  JOKER_STICKER_INFO,
   PERISHABLE_LIFE,
   jokerStickers,
   type Joker,
   type JokerSticker,
 } from "../../items/jokers";
+import { stickerDescription, stickerName } from "./jokerStickerLabels";
 import RenderProfiler from "../../dev/RenderProfiler";
 
 interface JokerStickerBadgesProps {
@@ -69,17 +69,20 @@ function badgeText(sticker: JokerSticker): string {
 }
 
 function badgeAriaLabel(t: TFunction, sticker: JokerSticker): string {
-  const info = JOKER_STICKER_INFO[sticker.kind];
+  const name = stickerName(t, sticker.kind);
   if (sticker.kind === "perishable") {
     if (sticker.roundsHeld >= PERISHABLE_LIFE) {
-      return t("a11y.stickerDebuffed", { name: info.name });
+      return t("a11y.stickerDebuffed", { name });
     }
     const remaining = PERISHABLE_LIFE - sticker.roundsHeld;
     return t("a11y.stickerRoundsLeft", {
-      name: info.name,
+      name,
       remaining,
       total: PERISHABLE_LIFE,
     });
   }
-  return t("a11y.stickerInfo", { name: info.name, detail: info.description });
+  return t("a11y.stickerInfo", {
+    name,
+    detail: stickerDescription(t, sticker.kind),
+  });
 }

@@ -10,8 +10,12 @@ import { VOUCHER_CATALOG } from "../items/vouchers";
 import { createTagCatalog } from "../items/tags";
 import { CARD_EDITION_INFO } from "../cards/editions";
 import { ENHANCEMENT_KINDS } from "../cards/enhancements";
-import { getCardInfo } from "../components/cards/cardInfo";
+import {
+  enhancementDescription,
+  enhancementName,
+} from "../components/cards/cardInfo";
 import { SEAL_KINDS, getSealInfo } from "../cards/seals";
+import i18n from "../i18n";
 import { toolDescriptions, toolSchemas } from "./protocol";
 
 export function queryRules(input: unknown): object {
@@ -31,11 +35,14 @@ export function queryRules(input: unknown): object {
         "Every mutation requires sessionId and expectedRevision. On stale_revision re-read state. accepted is an execution acknowledgement, not completion of scoring. Wait for ready=true before the next action; wait timeouts do not imply readiness.",
       observation:
         "Hidden hand cards and face-down jokers are redacted. Unopened pack contents, future shop offers, random state and draw order are never exposed.",
-      enhancements: ENHANCEMENT_KINDS.map((kind) => ({
-        kind,
-        ...getCardInfo({ id: 0, rank: "2", suit: "spades", enhancement: kind })
-          .enhancement,
-      })),
+      enhancements: (() => {
+        const t = i18n.getFixedT("en");
+        return ENHANCEMENT_KINDS.map((kind) => ({
+          kind,
+          name: enhancementName(t, kind),
+          description: enhancementDescription(t, kind),
+        }));
+      })(),
       editions: CARD_EDITION_INFO,
       seals: SEAL_KINDS.map((kind) => ({ kind, ...getSealInfo(kind) })),
     };

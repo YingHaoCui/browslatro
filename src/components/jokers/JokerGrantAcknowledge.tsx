@@ -24,10 +24,7 @@ export default function JokerGrantAcknowledge({
   useEscapeToClose(onAcknowledge, jokers.length > 0);
   useFocusTrap(overlayRef, jokers.length > 0);
   if (jokers.length === 0) return null;
-  const title =
-    jokers.length === 1
-      ? "Gained 1 Joker"
-      : `Gained ${jokers.length} Jokers`;
+  const title = t("jokers.gainedJoker", { count: jokers.length });
   return createPortal(
     <div
       ref={overlayRef}
@@ -75,7 +72,7 @@ export default function JokerGrantAcknowledge({
           onClick={onAcknowledge}
           autoFocus
         >
-          OK
+          {t("jokers.ok")}
         </Button>
       </div>
     </div>,

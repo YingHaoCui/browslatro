@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { TFunction } from "i18next";
 import type { Suit } from "../../cards/types";
 import { SUIT_GLYPHS } from "../../cards/deck";
 
@@ -9,30 +10,30 @@ const SUIT_CLASS: Record<Suit, string> = {
   clubs: "castle-suit-clubs",
 };
 
-const UNSET_SUFFIX = "Suit is chosen when the blind starts";
-
 export function castleDescriptionText(
+  t: TFunction,
   base: string,
   suit: Suit | null,
   suitName: string | null,
 ): string {
   if (suit === null || suitName === null) {
-    return `${base} — ${UNSET_SUFFIX}`;
+    return `${base} — ${t("jokers.castleSuitUnset")}`;
   }
-  return `${base} — Currently: ${SUIT_GLYPHS[suit]} ${suitName}`;
+  return `${base} — ${t("jokers.currently")} ${SUIT_GLYPHS[suit]} ${suitName}`;
 }
 
 export function castleDescriptionNode(
+  t: TFunction,
   base: string,
   suit: Suit | null,
   suitName: string | null,
 ): ReactNode {
   if (suit === null || suitName === null) {
-    return `${base} — ${UNSET_SUFFIX}`;
+    return `${base} — ${t("jokers.castleSuitUnset")}`;
   }
   return (
     <>
-      {base} — Currently:{" "}
+      {base} — {t("jokers.currently")}{" "}
       <strong className={SUIT_CLASS[suit]}>
         {SUIT_GLYPHS[suit]} {suitName}
       </strong>

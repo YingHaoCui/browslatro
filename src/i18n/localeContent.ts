@@ -6,12 +6,30 @@ export type LocaleContent = {
 
 export type ContentSection = keyof LocaleContent;
 
+export type JokerPlaceholderValues = Readonly<
+  Record<string, Readonly<Record<string, string>>>
+>;
+
 const EN_CONTENT: LocaleContent = en;
 
 const loadedContent = new Map<string, LocaleContent>();
+const loadedJokerPlaceholders = new Map<string, JokerPlaceholderValues>();
 
 export function registerLocaleContent(locale: string, content: LocaleContent): void {
   loadedContent.set(locale, content);
+}
+
+export function registerJokerPlaceholders(
+  locale: string,
+  values: JokerPlaceholderValues,
+): void {
+  loadedJokerPlaceholders.set(locale, values);
+}
+
+export function localizedJokerPlaceholders(
+  locale: string,
+): JokerPlaceholderValues | undefined {
+  return loadedJokerPlaceholders.get(locale);
 }
 
 function sectionFor(
