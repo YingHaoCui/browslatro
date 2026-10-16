@@ -374,6 +374,8 @@ export function useRoundLifecycle({
   }
 
   function resetForNewRun(deck: Deck): void {
+    setPendingWin(null);
+    setPendingLose(null);
     setBlind(1);
     setRound(1);
     setAnte(1);

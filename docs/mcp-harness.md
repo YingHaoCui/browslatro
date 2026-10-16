@@ -92,6 +92,8 @@ harness 会启动 MCP 子进程，无需额外手动运行 yarn mcp。手动运�
 
 索引从 0 开始。所有修改动作都必须包含 sessionId 和 expectedRevision。get_rules 的 topic 支持 overview、hands、jokers、consumables、boss、decks、stakes、vouchers、tags。get_state 提供当前实际效果、动态小丑牌状态与目标、已拥有优惠券、商店价格和卡包内容；规则以此项目实现为准。
 
+成功／失败界面无需人工点击：`round_won` 使用 `continue_round(action="collect")` 领取结算；`lost` 使用 `start_run` 直接开始下一局；最终通关的 `won` 使用 `start_run` 重开，或 `continue_round(action="endless")` 进入无尽模式。返回的新局阶段为 `blind_select`，随后使用 `select_blind(action="play")`。需要连续托管时，在 harness 任务中明确连续局数或停止条件，避免 agent 按单局任务的终局停止规则结束。
+
 牌 ID 顺序会设置出牌顺序，消耗品目标顺序会设置左右关系（如 Death）。模型可以自由选择组合，游戏不预先用策略算法筛选候选动作。
 
 ## 调用示例

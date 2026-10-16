@@ -147,6 +147,68 @@ test("a harness controls a real browser run through standard MCP stdio", async (
   }
 });
 
+test("MCP restarts consecutive lost runs without clicking the loss dialog", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await page.addInitScript(() => {
+    localStorage.setItem("browslatro:muted", "true");
+    localStorage.setItem("browslatro:animationSpeed", "fast");
+  });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Enable MCP control" }).click();
+  await expect(
+    page.getByText("Connected · harness can control this game"),
+  ).toBeVisible();
+  const sessionId = await page
+    .getByTestId("mcp-controls")
+    .locator("p[title]")
+    .getAttribute("title");
+  const client = await connect();
+  try {
+    let state = (await call(client, "get_state", { sessionId })).state!;
+    const mutate = async (name: string, args: Record<string, unknown> = {}) => {
+      const response = await call(client, name, {
+        sessionId,
+        expectedRevision: state.revision,
+        ...args,
+      });
+      expect(response.ok, JSON.stringify(response.error)).toBe(true);
+      state = response.state!;
+    };
+    await mutate("start_run");
+    for (let run = 0; run < 2; run += 1) {
+      await mutate("select_blind", { action: "play" });
+      // Single-card high-card hands cannot clear the first blind without items.
+      for (let hand = 0; hand < 4; hand += 1) {
+        expect(state.phase).toBe("hand");
+        await mutate("play_hand", {
+          cardIds: [(state.hand as { id: number }[])[0].id],
+        });
+        while (!state.ready) {
+          const response = await call(client, "wait_for_state_change", {
+            sessionId,
+            afterRevision: state.revision,
+            readyOnly: true,
+            timeoutMs: 10_000,
+          });
+          expect(response.ok, JSON.stringify(response.error)).toBe(true);
+          state = response.state!;
+        }
+      }
+      expect(state.phase).toBe("lost");
+      await expect(page.getByTestId("round-lost-score")).toBeVisible();
+      await mutate("start_run");
+      expect(state.phase).toBe("blind_select");
+      await expect(page.getByTestId("round-lost-score")).toHaveCount(0);
+    }
+    await mutate("select_blind", { action: "play" });
+    expect(state.phase).toBe("hand");
+  } finally {
+    await client.close();
+  }
+});
+
 test("session versions reject manual changes and waits report timeout accurately", async ({
   page,
 }) => {

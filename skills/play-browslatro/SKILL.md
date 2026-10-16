@@ -97,7 +97,8 @@ Use the phase to route actions:
 | `pack`         | `pack_action` with option index and any required targets; manage owned items as permitted                    |
 | `joker_grant`  | `continue_round` with `acknowledge_jokers`                                                                   |
 | `animating`    | Observe or wait; do not modify the game                                                                      |
-| `won` / `lost` | Report the outcome; start another run or choose endless only if within the user's requested scope            |
+| `won`         | Report the outcome; use `start_run` for another run or `continue_round` with `endless` when requested       |
+| `lost`        | Report the outcome; use `start_run` directly to start the next run when continuous play is requested        |
 
 ## Completion and recovery
 
@@ -110,5 +111,7 @@ Use the phase to route actions:
 - `browser_timeout`, `bridge_unavailable`, `cancelled`: the action may already have executed. Inspect state before issuing another mutation; do not blindly replay the previous call.
 
 If the connection remains unavailable or the same action fails after correction, stop issuing mutations and explain the specific blocker. Stop when the user's requested endpoint is reached, on a terminal result unless further runs were requested, or when the user asks to stop. Do not start another run automatically just because the last run lost.
+
+For requested continuous or multi-run play, win/loss screens are decision points, not blockers requiring a human click or renewed approval. After `lost`, call `start_run` with the requested deck/stake and the latest revision; after `won`, restart or choose endless according to the requested goal. Re-read the returned phase and continue the normal loop. Stop at the requested run count or endpoint.
 
 Keep player updates brief: consequential decisions, blockers and the final outcome. Use the harness and gateway's existing tracing for diagnostics; do not add a separate model loop or test dashboard to the game.
